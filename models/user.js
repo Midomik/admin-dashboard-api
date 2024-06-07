@@ -16,19 +16,10 @@ const userSchema = new Schema(
       required: [true, 'Email is required'],
       unique: true,
     },
-    dateOfBirth: {
-      type: String,
-      required: [true, 'Date of birth is required'],
-    },
     token: {
       type: String,
       default: null,
     },
-    avatarURL: {
-      type: String,
-      default: null,
-    },
-    subscriptionEmails: [String],
   },
   {
     versionKey: false,

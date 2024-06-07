@@ -1,6 +1,6 @@
 const express = require('express');
 
-const AuthController = require('../controllers/auth');
+const userController = require('../controllers/user');
 const authMiddleware = require('../middlewares/auth');
 const validateSchema = require('../middlewares/validateSchema');
 const { userRegistrationSchema, userLoginSchema } = require('../schemas/user');
@@ -8,11 +8,13 @@ const { userRegistrationSchema, userLoginSchema } = require('../schemas/user');
 const router = express.Router();
 
 router.post(
-  '/signup',
+  '/register',
   validateSchema(userRegistrationSchema),
-  AuthController.register
+  userController.register
 );
-router.post('/signin', validateSchema(userLoginSchema), AuthController.login);
-router.post('/signout', authMiddleware, AuthController.logout);
+router.post('/login', validateSchema(userLoginSchema), userController.login);
+router.post('/logout', authMiddleware, userController.logout);
+
+router.get('/current', authMiddleware, userController.currentUser);
 
 module.exports = router;

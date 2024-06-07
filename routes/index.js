@@ -2,21 +2,14 @@ const express = require('express');
 
 const authMiddleware = require('../middlewares/auth');
 
-const authRouter = require('./auth');
-const filterRouter = require('./filters');
-const drinkRouter = require('./drinks');
-const userRouter = require('./users');
-const temporary = require('../controllers/temporary');
+const userRouter = require('./user');
+const dashboardRouter = require('./dashboard');
+const orderRouter = require('./order');
 
 const router = express.Router();
 
-router.use('/auth', authRouter);
-router.use('/filters', authMiddleware, filterRouter);
-router.use('/drinks', authMiddleware, drinkRouter);
-router.use('/users', authMiddleware, userRouter);
-router.get('/', (req, res) => {
-  res.sendFile('./public/index.html');
-});
-router.get('/temporary', temporary);
+router.use('/user', userRouter);
+router.use('/dashboard', dashboardRouter);
+router.use('/orders', authMiddleware, orderRouter);
 
 module.exports = router;

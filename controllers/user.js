@@ -1,7 +1,103 @@
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { sendSubscriptionEmail } = require('../services/sendEmail');
 
-async function currentUser(req, res, next) {
+const TOKEN_EXPIRES_IN = '21 days';
+
+const register = async (req, res, next) => {
+  const { name, email, password } = req.body;
+
+  try {
+    let user = await User.findOne({ email });
+    if (user !== null) {
+      return res.status(409).send({ message: 'Email already in use' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    user = await User.create({
+      name,
+      email,
+      password: passwordHash,
+    });
+
+    const token = jwt.sign(
+      { id: user._id, name: user.name },
+      process.env.JWT_SECRET,
+      { expiresIn: TOKEN_EXPIRES_IN }
+    );
+
+    await User.findByIdAndUpdate(user._id, {
+      token,
+    });
+
+    res.status(201).send({
+      token,
+      user: {
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const login = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (user === null) {
+      console.log(user);
+
+      return res.status(401).send({ message: 'Email or password is wrong' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (isMatch === false) {
+      console.log(2);
+
+      return res.status(401).send({ message: 'Email or password is wrong' });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, name: user.name },
+      process.env.JWT_SECRET,
+      { expiresIn: TOKEN_EXPIRES_IN }
+    );
+
+    await User.findByIdAndUpdate(user._id, {
+      token,
+    });
+
+    res.send({
+      token,
+      user: {
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const logout = async (req, res, next) => {
+  try {
+    await User.findByIdAndUpdate(req.user.id, { token: null });
+
+    res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ###################################
+
+const currentUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
 
@@ -10,71 +106,20 @@ async function currentUser(req, res, next) {
     }
 
     res.send({
-      name: user.name,
-      email: user.email,
-      avatarURL: user.avatarURL,
-      dateOfBirth: user.dateOfBirth,
+      token: user.token,
+      user: {
+        name: user.name,
+        email: user.email,
+      },
     });
   } catch (error) {
     next(error);
   }
-}
+};
 
-async function updateUser(req, res, next) {
-  try {
-    const userID = req.user.id;
-    const { name } = req.body;
-    const updatedInfo = { name };
-
-    if (req.file) {
-      updatedInfo.avatarURL = req.file.path;
-    }
-
-    const { email, avatarURL, dateOfBirth } = await User.findByIdAndUpdate(
-      userID,
-      updatedInfo,
-      {
-        new: true,
-      }
-    );
-
-    return res.send({
-      name,
-      email,
-      avatarURL,
-      dateOfBirth,
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-async function subscribe(req, res, next) {
-  try {
-    const { email } = req.body;
-
-    const user = await User.findById(req.user.id);
-
-    if (user === null) {
-      return res.status(404).send({ message: 'User not found' });
-    }
-
-    if (user.subscriptionEmails.includes(email)) {
-      return res.status(409).json({
-        message: 'Email is already subscribed',
-      });
-    }
-
-    await User.findByIdAndUpdate(req.user.id, {
-      $push: { subscriptionEmails: email },
-    });
-
-    res.status(204).end();
-
-    await sendSubscriptionEmail(email);
-  } catch (error) {
-    next(error);
-  }
-}
-
-module.exports = { currentUser, updateUser, subscribe };
+module.exports = {
+  register,
+  login,
+  logout,
+  currentUser,
+};
