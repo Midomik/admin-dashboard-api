@@ -50,16 +50,12 @@ const login = async (req, res, next) => {
     const user = await User.findOne({ email });
 
     if (user === null) {
-      console.log(user);
-
       return res.status(401).send({ message: 'Email or password is wrong' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (isMatch === false) {
-      console.log(2);
-
       return res.status(401).send({ message: 'Email or password is wrong' });
     }
 
@@ -94,8 +90,6 @@ const logout = async (req, res, next) => {
     next(error);
   }
 };
-
-// ###################################
 
 const currentUser = async (req, res, next) => {
   try {

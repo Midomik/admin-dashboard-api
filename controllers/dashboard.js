@@ -6,7 +6,6 @@ const IncomeExpense = require('../models/income-expense');
 
 const getDashboard = async (req, res, next) => {
   try {
-    console.log(1);
 
     const results = await Promise.allSettled([
       Product.find(),
@@ -35,13 +34,6 @@ const getDashboard = async (req, res, next) => {
     if (results[4] === null) {
       return res.status(404).send({ message: 'Income or Expense not found' });
     }
-    console.log({
-      products: results[0].value.length,
-      suppliers: results[1].value.length,
-      customers: results[2].value.length,
-      orders: results[3].value,
-      incomeExpenses: results[4].value,
-    });
 
     res.status(200).send({
       products: results[0].value.length,
