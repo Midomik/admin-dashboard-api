@@ -12,10 +12,10 @@ const customerRouter = require('./customer');
 const router = express.Router();
 
 router.use('/user', userRouter);
-router.use('/dashboard', dashboardRouter);
+router.use('/dashboard', authMiddleware, dashboardRouter);
 router.use('/orders', authMiddleware, orderRouter);
-router.use('/products', productRouter);
-router.use('/suppliers', supplierRouter);
-router.use('/customers', customerRouter);
+router.use('/products', authMiddleware, productRouter);
+router.use('/suppliers', authMiddleware, supplierRouter);
+router.use('/customers', authMiddleware, customerRouter);
 
 module.exports = router;
