@@ -1,20 +1,20 @@
 # Admin dashboard
 
-Цей проект - це бекенд додатка Admin dashboard, який реалізований на мові
-Node.js
+This project is the backend of the Admin dashboard application, which is
+implemented in the language Node.js
 
-## Інструкції по запуску
+## Get started
 
-Цей проект готовий до розгортання на Render. Ви можете знайти робочу версію
-додатку за наступним посиланням:
+This project is deployed on Render. You can find the working version of the
+application at the following link:
 [https://admin-dashboard-api-ipk5.onrender.com].
 
-## Деталі API
+## API details
 
-Цей бекенд надає API для роботи з базою даних фармацевтичного магазину. Для
-отримання детальної документації звертайтеся до
+This backend provides an API to work with the pharmacy store database. For
+detailed documentation contact
 [https://docs.google.com/spreadsheets/d/1ufIlG2HwqppnY1by3HD4l6TVGq4EoW_o8b-ubA-pQq4/edit?usp=sharing].
 
-## Автор
+## Author
 
 - [Yurii Novosad](https://github.com/midomik)
