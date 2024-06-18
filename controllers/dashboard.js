@@ -1,17 +1,14 @@
 const Product = require('../models/product');
 const Supplier = require('../models/supplier');
 const Customer = require('../models/customer');
-const Order = require('../models/order');
 const IncomeExpense = require('../models/income-expense');
 
 const getDashboard = async (req, res, next) => {
   try {
-
     const results = await Promise.allSettled([
       Product.find(),
       Supplier.find(),
       Customer.find(),
-      Order.find().limit(5),
       IncomeExpense.find().limit(6),
     ]);
 
@@ -28,10 +25,6 @@ const getDashboard = async (req, res, next) => {
     }
 
     if (results[3] === null) {
-      return res.status(404).send({ message: 'Orders not found' });
-    }
-
-    if (results[4] === null) {
       return res.status(404).send({ message: 'Income or Expense not found' });
     }
 
@@ -39,8 +32,8 @@ const getDashboard = async (req, res, next) => {
       products: results[0].value.length,
       suppliers: results[1].value.length,
       customers: results[2].value.length,
-      orders: results[3].value,
-      incomeExpenses: results[4].value,
+      recentCustomers: results[2].value.slice(0, 5),
+      incomeExpenses: results[3].value,
     });
   } catch (error) {
     next(error);
