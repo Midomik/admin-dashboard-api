@@ -34,14 +34,31 @@ const addSupplier = async (req, res, next) => {
   try {
     const supplierData = req.body;
 
-    const existingProduct = await Supplier.findOne({ name: supplierData.name });
-    if (existingProduct) {
+    const existingSupplier = await Supplier.findOne({
+      name: supplierData.name,
+    });
+    if (existingSupplier) {
       return res.status(409).send({ message: 'Supplier already exists' });
     }
 
-    const newProduct = await Supplier.create(supplierData);
+    const newSupplier = await Supplier.create(supplierData);
 
-    res.status(201).send(newProduct);
+    const allSuppliers = await Supplier.find().sort({ createdAt: -1 });
+
+    const updatedSuppliers = await Promise.all(
+      allSuppliers.map(async (supplier, index) => {
+        if (supplier._id.equals(newSupplier._id)) {
+          return newSupplier;
+        }
+        return supplier;
+      })
+    );
+
+    await Supplier.deleteMany({});
+
+    await Supplier.insertMany(updatedSuppliers);
+
+    res.status(201).send(newSupplier);
   } catch (error) {
     next(error);
   }

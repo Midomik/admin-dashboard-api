@@ -42,6 +42,20 @@ const addProduct = async (req, res, next) => {
 
     const newProduct = await Product.create(productData);
 
+    const allProducts = await Product.find().sort({ createdAt: -1 });
+
+    const updatedProducts = await Promise.all(
+      allProducts.map(async (product, index) => {
+        if (product._id.equals(newProduct._id)) {
+          return newProduct;
+        }
+        return product;
+      })
+    );
+
+    await Product.deleteMany({});
+    await Product.insertMany(updatedProducts);
+
     res.status(201).send(newProduct);
   } catch (error) {
     next(error);
